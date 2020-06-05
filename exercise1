@@ -1,0 +1,23 @@
+// Databricks notebook source
+
+val containerName = "level2"
+val storageAccountName = "azexercise1"
+val sas = "?sv=2019-10-10&ss=bfqt&srt=sco&sp=rwdlacupx&se=2020-06-05T15:21:01Z&st=2020-06-05T07:21:01Z&spr=https&sig=amolGMW8WcvPIO26QNfzU5VSvnVZIh6A3NQI%2FNMETuQ%3D"
+
+val url = "wasbs://" + containerName + "@" + storageAccountName + ".blob.core.windows.net/"
+var config = "fs.azure.sas." + containerName + "." + storageAccountName + ".blob.core.windows.net"
+
+// COMMAND ----------
+
+dbutils.fs.mount(
+  source = url,
+  mountPoint = "/mnt/level2",
+  extraConfigs = Map(config -> sas))
+  
+// COMMAND ----------
+
+case class User(registration_dttm:java.sql.Timestamp,id:Integer,first_name:String,last_name:String,email:String,gender:String,ip_address:String,cc:String,country:String,birthdate:String,salary:Double,title:String,comments:String)
+
+val UserDS = spark.read.parquet("/mnt/level2/smallfile.parquet").as[User]
+UserDS.show()
+
